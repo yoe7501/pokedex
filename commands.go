@@ -1,6 +1,6 @@
 package main
 
-func getCommands() map[string]cliCommand{
+func getCommands() map[string]cliCommand {
 	commands := map[string]cliCommand{
 		"exit": {
 			name:        "exit",
@@ -8,9 +8,19 @@ func getCommands() map[string]cliCommand{
 			callback:    commandExit,
 		},
 		"help": {
-			name: "help",
+			name:        "help",
 			description: "list help commands",
-			callback: commandHelp,
+			callback:    commandHelp,
+		},
+		"map": {
+			name:        "map",
+			description: "list 20 location areas",
+			callback:    commandMap,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "list previous 20 location areas",
+			callback:    commandMapb,
 		},
 	}
 	return commands

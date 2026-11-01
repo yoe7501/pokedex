@@ -8,6 +8,8 @@ import (
 )
 
 type config struct {
+	next     *string
+	prev     *string
 	commands map[string]cliCommand
 }
 
