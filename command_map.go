@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -20,13 +21,26 @@ func commandMap(cfg *config) error {
 	if cfg.next == nil {
 		return errors.New("Error retrieving next url")
 	}
-	res, err := http.Get(*cfg.next)
-	if err != nil {
-		return errors.New("Issue getting maps")
-	}
-	err = json.NewDecoder(res.Body).Decode(&area)
-	if err != nil {
-		return errors.New("issue deocding json")
+	if value, ok := cfg.cache.Get(*cfg.next); ok {
+		err := json.Unmarshal(value, &area)
+		if err != nil {
+			return errors.New("error unmarshalling data")
+		}
+	} else {
+		res, err := http.Get(*cfg.next)
+		data, err := io.ReadAll(res.Body)
+		if err != nil {
+			return errors.New("issue reading response body")
+		}
+		if err != nil {
+			return errors.New("Issue getting maps")
+		}
+		err = json.Unmarshal(data, &area)
+		if err != nil {
+			return errors.New("Issue decoding json")
+		}
+
+		cfg.cache.Add(*cfg.next, data)
 	}
 	for _, v := range area.Results {
 		fmt.Println(v.Name)
@@ -41,14 +55,28 @@ func commandMapb(cfg *config) error {
 	if cfg.prev == nil {
 		return errors.New("previous URL nil")
 	}
-	res, err := http.Get(*cfg.prev)
-	if err != nil {
-		return errors.New("issue with getting response from previous URL")
+	if cached, ok := cfg.cache.Get(*cfg.prev); ok {
+		err := json.Unmarshal(cached, &area)
+		if err != nil {
+			return errors.New("error unmarshalling data")
+		}
+	} else {
+		res, err := http.Get(*cfg.prev)
+		if err != nil {
+			return errors.New("issue with getting response from previous URL")
+		}
+		data, err := io.ReadAll(res.Body)
+		if err != nil {
+			return errors.New("Issue reading response body")
+		}
+		err = json.Unmarshal(data, &area)
+		if err != nil {
+			return errors.New("issue decoding response body")
+		}
+
+		cfg.cache.Add(*cfg.prev, data)
 	}
-	err = json.NewDecoder(res.Body).Decode(&area)
-	if err != nil {
-		return errors.New("issue decoding response body")
-	}
+
 	for _, v := range area.Results {
 		fmt.Println(v.Name)
 	}

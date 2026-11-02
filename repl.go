@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/yoe7501/pokedex/internal/pokecache"
 )
 
 type config struct {
 	next     *string
 	prev     *string
 	commands map[string]cliCommand
+	cache    *pokecache.Cache
 }
 
 type cliCommand struct {
