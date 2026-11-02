@@ -14,6 +14,9 @@ type config struct {
 	prev     *string
 	commands map[string]cliCommand
 	cache    *pokecache.Cache
+	city     *string
+	pokemon  *string
+	pokedex  map[string]Pokemon
 }
 
 type cliCommand struct {
@@ -46,6 +49,30 @@ func startRepl(cfg *config) {
 			fmt.Println("Unknown command")
 			continue
 		}
-		cmd.callback(cfg)
+		if cmd.name == "explore" {
+			if len(words) != 2 {
+				fmt.Println("Explore must be used with a city name ")
+				continue
+			}
+			cfg.city = &words[1]
+		}
+		if cmd.name == "catch" {
+			if len(words) != 2 {
+				fmt.Println("Catch must be used with a pokemon name")
+				continue
+			}
+			cfg.pokemon = &words[1]
+		}
+		if cmd.name == "inspect" {
+			if len(words) != 2 {
+				fmt.Println("Inspect must be used with a pokemon name")
+				continue
+			}
+			cfg.pokemon = &words[1]
+		}
+		err := cmd.callback(cfg)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }

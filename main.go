@@ -14,6 +14,9 @@ func main() {
 		prev:     nil,
 		commands: getCommands(),
 		cache:    c,
+		city:     nil,
+		pokemon:  nil,
+		pokedex:  map[string]Pokemon{},
 	}
 	startRepl(cfg)
 }
